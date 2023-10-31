@@ -10,6 +10,9 @@
     - [Remove the containers](#remove-the-containers)
     - [Summary](#summary)
     - [Questions summary](#questions-summary)
+  - [Lab 2: Add CI/CD value with Docker images](#lab-2-add-cicd-value-with-docker-images)
+    - [Create and build the Docker image](#create-and-build-the-docker-image)
+    - [Run the docker image](#run-the-docker-image)
 
 ## Lab 1: Run your first container
 
@@ -96,3 +99,62 @@ docker system prune
 - An image is the blueprint for spinning up containers. An image is a TAR of a file system, and a container is a file system plus a set of processes running in isolation.
 - Control groups (cgroups) are used to limit and monitor resource.
 - LinuxKit makes it possible to run Docker containers on operating systems other than Linux.
+
+## Lab 2: Add CI/CD value with Docker images
+
+### Create and build the Docker image
+
+A Dockerfile is basically a text document that contains all the commands a user could call on the command line to assemble an image.
+
+A typical Dockerfile looks like this:
+```Dockerfile
+FROM python:3.6.1-alpine
+RUN pip install --upgrade pip
+RUN pip install flask
+CMD ["python","app.py"]
+COPY app.py /app.py
+```
+
+- `FROM python:3.6.1-alpine` - This is the starting point for your Dockerfile. Every Dockerfile typically starts with a FROM line that is the starting image to build your layers on top of.
+The alpine version means that it uses the alpine distribution, which is significantly smaller than an alternative flavor of Linux. A smaller image means it will download (deploy) much faster, and it is also more secure because it has a smaller attack surface.
+- `RUN pip install flask` - The `RUN` command executes commands needed to set up your image for your application, such as installing packages, editing files, or changing file permissions. The `RUN` commands are executed at build time.
+- `CMD ["python","app.py"]` - CMD is the command that is executed when you start a container.
+There can be only one CMD per Dockerfile. If you specify more than one CMD, then the last CMD will take effect.
+- `COPY app.py /app.py` - Copies the `app.py` file in the local directory (where you will run `docker image build`) into a new layer of the image.
+This instruction is the last line in the Dockerfile. Layers that change frequently, such as copying source code into the image, should be placed near the bottom of the file to take full advantage of the Docker layer cache. This allows you to avoid rebuilding layers that could otherwise be cached. For instance, if there was a change in the FROM instruction, it will invalidate the cache for all subsequent layers of this image.
+
+Verify a Dockerfile with:
+```bash
+vi Dockerfile
+```
+
+Build a Docker image with `docker image build`:
+```bash
+docker image build -t python-helloworld .
+```
+
+> The `-t` option tags the image with a name, so you can easily refer to it later.
+> The `.` at the end of the command tells Docker to look for the Dockerfile in the current directory which is the root of the project.
+
+Verify that your image shows up in the list of images on your system with:
+
+```bash
+docker image ls
+```
+
+### Run the docker image
+
+You can run the image after a successful build with:
+
+```bash
+docker run -p 5001:5000 -d python-helloworld
+```
+
+> The -p flag maps a port running inside the container to your host. In this case, you're mapping the Python app running on port 5000 inside the container to port 5001 on your host. Note that if port 5001 is already being used by another application on your host, you might need to replace 5001 with another value, such as 5002.
+> The -d flag runs the container in detached mode, leaving the container running in the background.
+
+Check logs with:
+
+```bash
+docker container logs <container id>
+```
