@@ -13,6 +13,7 @@
   - [Lab 2: Add CI/CD value with Docker images](#lab-2-add-cicd-value-with-docker-images)
     - [Create and build the Docker image](#create-and-build-the-docker-image)
     - [Run the docker image](#run-the-docker-image)
+    - [Push to a central registry](#push-to-a-central-registry)
 
 ## Lab 1: Run your first container
 
@@ -158,3 +159,23 @@ Check logs with:
 ```bash
 docker container logs <container id>
 ```
+
+### Push to a central registry
+
+- Log in to docker hub with:
+  
+  ```bash
+  docker login
+  ```
+
+- Tag the image with:
+
+  ```bash
+  docker tag <image_name> <docker_hub_username>/<image_name>
+  ```
+
+- Push the image to docker hub with:
+
+  ```bash
+  docker push <docker_hub_username>/<image_name>
+  ```
