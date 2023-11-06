@@ -14,6 +14,7 @@
     - [Create and build the Docker image](#create-and-build-the-docker-image)
     - [Run the docker image](#run-the-docker-image)
     - [Push to a central registry](#push-to-a-central-registry)
+    - [Deploy a change](#deploy-a-change)
 
 ## Lab 1: Run your first container
 
@@ -179,3 +180,13 @@ docker container logs <container id>
   ```bash
   docker push <docker_hub_username>/<image_name>
   ```
+
+### Deploy a change
+
+Rebuild your image with:
+
+```bash
+docker image build -t <docker_hub_username>/<image_name> .
+```
+
+> Notice the caching used in some of the layers. This is why you want to place layers that change frequently near the bottom of the Dockerfile. This allows you to take advantage of the Docker layer cache and avoid rebuilding layers that could otherwise be cached.
